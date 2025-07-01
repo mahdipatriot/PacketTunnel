@@ -112,8 +112,6 @@ function generate_iran_config() {
 EOF
 
     for i in "${!ports[@]}"; do
-        sep=","
-        [[ $i -eq $((${#ports[@]} - 1)) ]] && sep=""
         cat >> "$INSTALL_DIR/config.json" <<EOF
 ,
         {
@@ -134,7 +132,7 @@ EOF
                 "address": "10.10.0.2",
                 "port": ${ports[i]}
             }
-        }$sep
+        }
 EOF
     done
 
