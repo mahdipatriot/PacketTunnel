@@ -22,7 +22,7 @@ function uninstall() {
 
     log "Reloading systemd..."
     systemctl daemon-reexec
-    log "Uninstall complete."
+    log "✅ Uninstall complete."
     exit 0
 }
 
@@ -242,35 +242,44 @@ EOF
     systemctl restart packettunnel.service
 }
 
-### MAIN SCRIPT
-if [[ "$1" == "uninstall" ]]; then
-    uninstall
-fi
+function install_menu() {
+    mkdir -p "$INSTALL_DIR"
+    cd "$INSTALL_DIR"
 
-mkdir -p "$INSTALL_DIR"
-cd "$INSTALL_DIR"
+    log "Downloading Waterwall binary..."
+    curl -fsSL "$WATERWALL_URL" -o Waterwall
+    chmod +x Waterwall
 
-log "Downloading Waterwall binary..."
-curl -fsSL "$WATERWALL_URL" -o Waterwall
-chmod +x Waterwall
+    log "Downloading core.json..."
+    curl -fsSL "$CORE_URL" -o core.json
 
-log "Downloading core.json..."
-curl -fsSL "$CORE_URL" -o core.json
+    read -rp "Is this server 'iran' or 'kharej'? " role
+    read -rp "Enter Iran server public IP: " ip_iran
+    read -rp "Enter Kharej server public IP: " ip_kharej
 
-read -rp "Is this server 'iran' or 'kharej'? " role
-read -rp "Enter Iran server public IP: " ip_iran
-read -rp "Enter Kharej server public IP: " ip_kharej
+    if [[ "$role" == "iran" ]]; then
+        prompt_ports
+        generate_iran_config "$ip_iran" "$ip_kharej"
+    elif [[ "$role" == "kharej" ]]; then
+        generate_kharej_config "$ip_kharej" "$ip_iran"
+    else
+        echo "Invalid role. Must be 'iran' or 'kharej'."
+        exit 1
+    fi
 
-if [[ "$role" == "iran" ]]; then
-    prompt_ports
-    generate_iran_config "$ip_iran" "$ip_kharej"
-elif [[ "$role" == "kharej" ]]; then
-    generate_kharej_config "$ip_kharej" "$ip_iran"
-else
-    echo "Invalid role. Must be 'iran' or 'kharej'."
-    exit 1
-fi
+    install_service
+    log "✅ Tunnel setup complete. Service is running."
+}
 
-install_service
+# MAIN MENU
+echo "PacketTunnel Setup"
+echo "=================="
+echo "1) Install"
+echo "2) Uninstall"
+read -rp "Choose an option [1-2]: " choice
 
-log "✅ Tunnel setup complete. Service is running."
+case "$choice" in
+    1) install_menu ;;
+    2) uninstall ;;
+    *) echo "Invalid option." ;;
+esac
