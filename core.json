@@ -24,8 +24,8 @@
     },
     "dns": {},
     "misc": {
-        "workers": 1,
-        "ram-profile": "client",
+        "workers": 0,
+        "ram-profile": "server",
         "libs-path": "libs/"
     },
     "configs": [
