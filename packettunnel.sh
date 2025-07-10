@@ -77,7 +77,7 @@ function generate_iran_config() {
             "name": "manip",
             "type": "IpManipulator",
             "settings": {
-                "protoswap": 136
+                "protoswap": 36
             },
             "next": "ipovsrc2"
         },
